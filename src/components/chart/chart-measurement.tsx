@@ -17,19 +17,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-import { Button } from '../ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { DatePicker } from '../date-picker/date-picker'
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
+
+import { MeasureModal } from '../measure-modal/measure-modal'
 
 export const description = 'A multiple bar chart'
 
@@ -61,48 +50,7 @@ export function ChartMeasurement() {
           <CardTitle>Bar Chart - Multiple</CardTitle>
           <CardDescription>January - June 2024</CardDescription>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">+ Measure</Button>
-          </DialogTrigger>
-          <DialogContent className="w-fit sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add measure</DialogTitle>
-            </DialogHeader>
-            <div className="flex flex-col gap-4 py-4">
-              <div className="flex flex-col items-start gap-4">
-                <Label htmlFor="measure-image" className="text-left">
-                  Measure Image
-                </Label>
-                <Input id="measure-image" type="file" className="w-[240px]" />
-              </div>
-              <div className="flex flex-col items-start gap-4">
-                <Label htmlFor="date" className="text-left">
-                  Date
-                </Label>
-                <DatePicker />
-              </div>
-              <div className="flex flex-col items-start gap-4">
-                <Label htmlFor="date" className="text-left">
-                  Measurer Type
-                </Label>
-                <RadioGroup defaultValue="option-one">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="option-one" id="option-one" />
-                    <Label htmlFor="option-one">Water</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="option-two" id="option-two" />
-                    <Label htmlFor="option-two">Gas</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Save changes</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <MeasureModal />
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
