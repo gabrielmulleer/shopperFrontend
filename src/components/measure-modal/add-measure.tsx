@@ -25,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { convertImageToBase64 } from '@/actions/uploadImage'
+import { uploadMeasurement } from '@/actions/addMeasure'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -45,7 +46,7 @@ const formSchema = z.object({
   measure_datetime: z.date({
     required_error: 'A date of birth is required.',
   }),
-  measure_type: z.enum(['water', 'gas'], {
+  measure_type: z.enum(['WATER', 'GAS'], {
     required_error: 'You need to select a measurer type.',
   }),
 })
@@ -57,7 +58,11 @@ export function AddMeasureForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const imageBase64 = await convertImageToBase64(values.image)
-      console.log({ ...values, image: imageBase64 })
+      await uploadMeasurement({
+        ...values,
+        customer_code: '1',
+        image: imageBase64,
+      })
       // Aqui você pode enviar os dados para o servidor
     } catch (error) {
       console.error('Error converting image:', error)
@@ -149,13 +154,13 @@ export function AddMeasureForm() {
                 >
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
-                      <RadioGroupItem value="water" />
+                      <RadioGroupItem value="WATER" />
                     </FormControl>
                     <FormLabel className="font-normal">Water</FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
-                      <RadioGroupItem value="gas" />
+                      <RadioGroupItem value="GAS" />
                     </FormControl>
                     <FormLabel className="font-normal">Gas</FormLabel>
                   </FormItem>
