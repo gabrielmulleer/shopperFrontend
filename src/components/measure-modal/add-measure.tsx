@@ -26,6 +26,8 @@ import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { convertImageToBase64 } from '@/actions/uploadImage'
 import { uploadMeasurement } from '@/actions/addMeasure'
+import { useState } from 'react'
+import ConfirmMeasureForm from './confirm-measure'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -50,130 +52,143 @@ const formSchema = z.object({
     required_error: 'You need to select a measurer type.',
   }),
 })
-
+type UploadMeasure = {
+  image_url: string
+  measure_value: number
+  measure_uuid: string
+}
 export function AddMeasureForm() {
+  const [uploadResponse, setUploadResponse] = useState<
+    UploadMeasure | undefined
+  >(undefined)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const imageBase64 = await convertImageToBase64(values.image)
-      await uploadMeasurement({
+      const response = await uploadMeasurement({
         ...values,
         customer_code: '1',
         image: imageBase64,
       })
+      const data: UploadMeasure = await response.json()
+      setUploadResponse(data)
       // Aqui você pode enviar os dados para o servidor
     } catch (error) {
       console.error('Error converting image:', error)
       // Trate o erro adequadamente (por exemplo, mostrando uma mensagem ao usuário)
     }
   }
-  return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 flex flex-col"
-      >
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Measure Image</FormLabel>
-              <FormControl>
-                <Input
-                  className="w-[240px]"
-                  type="file"
-                  accept={ACCEPTED_IMAGE_TYPES.join(',')}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) {
-                      field.onChange(file)
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="measure_datetime"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={'outline'}
-                      className={cn(
-                        'w-[240px] pl-3 text-left font-normal',
-                        !field.value && 'text-muted-foreground',
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, 'PPP')
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date('1900-01-01')
-                    }
-                    initialFocus
+  if (!uploadResponse) {
+    return (
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8 flex flex-col"
+        >
+          <FormField
+            control={form.control}
+            name="image"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Measure Image</FormLabel>
+                <FormControl>
+                  <Input
+                    className="w-[240px]"
+                    type="file"
+                    accept={ACCEPTED_IMAGE_TYPES.join(',')}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        field.onChange(file)
+                      }
+                    }}
                   />
-                </PopoverContent>
-              </Popover>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="measure_datetime"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'w-[240px] pl-3 text-left font-normal',
+                          !field.value && 'text-muted-foreground',
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, 'PPP')
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date('1900-01-01')
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="measure_type"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel>Measurer Type</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex flex-col space-y-1"
-                >
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="WATER" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Water</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="GAS" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Gas</FormLabel>
-                  </FormItem>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="self-end">
-          Submit
-        </Button>
-      </form>
-    </Form>
-  )
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="measure_type"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>Measurer Type</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="WATER" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Water</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="GAS" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Gas</FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" className="self-end">
+            Submit
+          </Button>
+        </form>
+      </Form>
+    )
+  } else {
+    return <ConfirmMeasureForm data={uploadResponse} />
+  }
 }
