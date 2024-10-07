@@ -1,5 +1,4 @@
 'use server'
-import { revalidatePath } from 'next/cache'
 
 type GetCustomerMeasuresParams = {
   customerCode: string
@@ -27,14 +26,13 @@ export default async function getMeasures({
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store', // Desabilita o cache
       },
+      next: { revalidate: 0 }, // Desabilita o cache do Next.js
     },
   )
 
   if (!response.ok) {
     throw new Error(`Failed to get measures: ${response.statusText}`)
   }
-  revalidatePath('/')
   return response.json()
 }
