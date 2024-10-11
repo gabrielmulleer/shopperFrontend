@@ -8,7 +8,8 @@ interface UploadPayload {
 export async function uploadMeasurement(
   data: UploadPayload,
 ): Promise<Response> {
-  const response = await fetch('http://localhost:8080/api/measures/upload', {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const response = await fetch(`${backendUrl}/api/measures/upload`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

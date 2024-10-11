@@ -18,8 +18,9 @@ export default async function getMeasures({
   customerCode,
   measureType,
 }: GetCustomerMeasuresParams): Promise<Measure[]> {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
   const response = await fetch(
-    `http://localhost:8080/api/measures/${customerCode}/list${
+    `${backendUrl}/api/measures/${customerCode}/list${
       measureType ? `?measure_type=${measureType}` : ''
     }`,
     {

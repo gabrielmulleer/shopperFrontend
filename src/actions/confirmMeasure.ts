@@ -1,3 +1,5 @@
+import { revalidatePath } from 'next/cache'
+
 interface ConfirmPayload {
   measure_uuid: string
   confirmed_value: number
@@ -5,7 +7,8 @@ interface ConfirmPayload {
 export default async function confirmMeasure(
   data: ConfirmPayload,
 ): Promise<Response> {
-  const response = await fetch('http://localhost:8080/api/measures/confirm', {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+  const response = await fetch(`${backendUrl}/api/measures/confirm`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -16,6 +19,6 @@ export default async function confirmMeasure(
   if (!response.ok) {
     throw new Error(`Failed to confirm: ${response.statusText}`)
   }
-
+  revalidatePath('/')
   return response
 }
