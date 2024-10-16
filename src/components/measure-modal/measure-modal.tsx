@@ -7,10 +7,15 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { AddMeasureForm } from './add-measure'
+import { useModalStore } from '@/store/modalState'
 
 export function MeasureModal() {
+  const { isOpen, openModal, closeModal } = useModalStore()
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen}
+      onOpenChange={() => (!isOpen ? openModal() : closeModal())}
+    >
       <DialogTrigger asChild>
         <Button variant="outline">+ Measure</Button>
       </DialogTrigger>
