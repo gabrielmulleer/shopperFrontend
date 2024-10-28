@@ -19,8 +19,9 @@ import {
 } from '@/components/ui/chart'
 
 import { MeasureModal } from '../measure-modal/measure-modal'
-import { Measure } from '@/actions/getMeasures'
 import { processChartData } from '@/actions/processChartData'
+import { useEffect } from 'react'
+import { useMeterStore } from '@/store/meterState'
 
 export const description = 'A multiple bar chart'
 
@@ -36,11 +37,22 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface ChartMeasurementProps {
-  measures: Measure[]
+  customerCode: string
 }
 
-export function ChartMeasurement({ measures }: ChartMeasurementProps) {
-  const chartData = processChartData(measures.measures)
+export function ChartMeasurement({ customerCode }: ChartMeasurementProps) {
+  const { readings, fetchReadings } = useMeterStore()
+
+  useEffect(() => {
+    if (!readings) {
+      fetchReadings(customerCode)
+    }
+  }, [fetchReadings, readings, customerCode])
+
+  const chartData = readings?.measures
+    ? processChartData(readings.measures)
+    : []
+
   return (
     <Card>
       <CardHeader className="flex-row justify-between items-center">
