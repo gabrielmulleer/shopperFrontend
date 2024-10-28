@@ -1,3 +1,5 @@
+import { UploadMeasure } from '@/types/types'
+
 interface UploadPayload {
   image: string
   customer_code: string
@@ -7,8 +9,8 @@ interface UploadPayload {
 
 export async function uploadMeasurement(
   data: UploadPayload,
-): Promise<Response> {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+): Promise<UploadMeasure> {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
   const response = await fetch(`${backendUrl}/api/measures/upload`, {
     method: 'POST',
     headers: {
@@ -21,5 +23,5 @@ export async function uploadMeasurement(
     throw new Error(`Failed to upload: ${response.statusText}`)
   }
 
-  return response
+  return response.json()
 }
