@@ -19,9 +19,11 @@ import {
 } from '@/components/ui/chart'
 
 import { MeasureModal } from '../measure-modal/measure-modal'
-import { processChartData } from '@/actions/processChartData'
+import { ChartDataPoint, processChartData } from '@/actions/processChartData'
 import { useEffect } from 'react'
 import { useMeterStore } from '@/store/meterState'
+import getMeasures from '@/actions/getMeasures'
+import { Measure } from '@/types/types'
 
 export const description = 'A multiple bar chart'
 
@@ -38,20 +40,30 @@ const chartConfig = {
 
 interface ChartMeasurementProps {
   customerCode: string
+  measures: Measure[]
 }
 
-export function ChartMeasurement({ customerCode }: ChartMeasurementProps) {
+export function ChartMeasurement({
+  customerCode,
+  measures,
+}: ChartMeasurementProps) {
   const { readings, fetchReadings } = useMeterStore()
 
   useEffect(() => {
-    if (!readings) {
+    console.log('Verificando leituras no estado:', readings)
+
+    if (!readings || readings.customer_code !== customerCode) {
+      console.log('Nenhuma leitura, fazendo fetchReadings...')
       fetchReadings(customerCode)
     }
   }, [fetchReadings, readings, customerCode])
 
-  const chartData = readings?.measures
-    ? processChartData(readings.measures)
-    : []
+  let chartData: ChartDataPoint[] = []
+
+  if (customerCode === readings?.customer_code) {
+    chartData = readings?.measures ? processChartData(readings.measures) : []
+  }
+  // const chartData = processChartData(measures)
 
   return (
     <Card>

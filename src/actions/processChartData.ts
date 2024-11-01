@@ -1,6 +1,6 @@
 import { Measure } from '@/types/types'
 
-interface ChartDataPoint {
+export interface ChartDataPoint {
   month: string
   water: number
   gas: number
