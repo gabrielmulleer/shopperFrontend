@@ -19,8 +19,11 @@ import {
 } from '@/components/ui/chart'
 
 import { MeasureModal } from '../measure-modal/measure-modal'
-import { Measure } from '@/actions/getMeasures'
-import { processChartData } from '@/actions/processChartData'
+import { ChartDataPoint, processChartData } from '@/actions/processChartData'
+import { useEffect } from 'react'
+import { useMeterStore } from '@/store/meterState'
+import getMeasures from '@/actions/getMeasures'
+import { Measure } from '@/types/types'
 
 export const description = 'A multiple bar chart'
 
@@ -36,11 +39,32 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface ChartMeasurementProps {
+  customerCode: string
   measures: Measure[]
 }
 
-export function ChartMeasurement({ measures }: ChartMeasurementProps) {
-  const chartData = processChartData(measures.measures)
+export function ChartMeasurement({
+  customerCode,
+  measures,
+}: ChartMeasurementProps) {
+  const { readings, fetchReadings } = useMeterStore()
+
+  useEffect(() => {
+    console.log('Verificando leituras no estado:', readings)
+
+    if (!readings || readings.customer_code !== customerCode) {
+      console.log('Nenhuma leitura, fazendo fetchReadings...')
+      fetchReadings(customerCode)
+    }
+  }, [fetchReadings, readings, customerCode])
+
+  let chartData: ChartDataPoint[] = []
+
+  if (customerCode === readings?.customer_code) {
+    chartData = readings?.measures ? processChartData(readings.measures) : []
+  }
+  // const chartData = processChartData(measures)
+
   return (
     <Card>
       <CardHeader className="flex-row justify-between items-center">

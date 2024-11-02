@@ -1,3 +1,4 @@
+'use server'
 import { revalidatePath } from 'next/cache'
 
 interface ConfirmPayload {
@@ -20,5 +21,5 @@ export default async function confirmMeasure(
     throw new Error(`Failed to confirm: ${response.statusText}`)
   }
   revalidatePath('/')
-  return response
+  return response.json()
 }

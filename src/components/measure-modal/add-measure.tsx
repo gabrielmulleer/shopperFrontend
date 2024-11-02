@@ -28,6 +28,7 @@ import { convertImageToBase64 } from '@/actions/uploadImage'
 import { uploadMeasurement } from '@/actions/addMeasure'
 import { useState } from 'react'
 import ConfirmMeasureForm from './confirm-measure'
+import { UploadMeasure } from '@/types/types'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -52,11 +53,7 @@ const formSchema = z.object({
     required_error: 'You need to select a measurer type.',
   }),
 })
-type UploadMeasure = {
-  image_url: string
-  measure_value: number
-  measure_uuid: string
-}
+
 export function AddMeasureForm() {
   const [uploadResponse, setUploadResponse] = useState<
     UploadMeasure | undefined
@@ -67,12 +64,12 @@ export function AddMeasureForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const imageBase64 = await convertImageToBase64(values.image)
-      const response = await uploadMeasurement({
+      const data = await uploadMeasurement({
         ...values,
         customer_code: '1',
         image: imageBase64,
       })
-      const data: UploadMeasure = await response.json()
+
       setUploadResponse(data)
       // Aqui você pode enviar os dados para o servidor
     } catch (error) {

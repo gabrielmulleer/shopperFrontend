@@ -1,23 +1,22 @@
 'use server'
 
+import { Measure } from '@/types/types'
+
 type GetCustomerMeasuresParams = {
   customerCode: string
   measureType?: 'WATER' | 'GAS'
 }
+type MeasureResponse = {
+  customer_code: string
+  measures: Measure[]
+}
 
 // Definindo o tipo para a resposta da API (ajuste conforme necessário)
-export type Measure = {
-  measure_uuid: string
-  measure_type: 'WATER' | 'GAS'
-  measure_datetime: Date
-  has_confirmed: boolean
-  image_url: string
-  measure_value: number
-}
+
 export default async function getMeasures({
   customerCode,
   measureType,
-}: GetCustomerMeasuresParams): Promise<Measure[]> {
+}: GetCustomerMeasuresParams): Promise<MeasureResponse> {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
   const response = await fetch(
     `${backendUrl}/api/measures/${customerCode}/list${

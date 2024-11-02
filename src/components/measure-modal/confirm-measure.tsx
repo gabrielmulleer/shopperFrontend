@@ -15,11 +15,10 @@ import {
 } from '../ui/form'
 import { Label } from '../ui/label'
 import confirmMeasure from '@/actions/confirmMeasure'
-type UploadMeasure = {
-  image_url: string
-  measure_value: number
-  measure_uuid: string
-}
+import { useModalStore } from '@/store/modalState'
+import { useMeterStore } from '@/store/meterState'
+import { UploadMeasure } from '@/types/types'
+
 interface ConfirmMeasureFormProps {
   data: UploadMeasure
 }
@@ -42,11 +41,14 @@ export default function ConfirmMeasureForm({ data }: ConfirmMeasureFormProps) {
       confirmed_value: data.measure_value,
     },
   })
-
+  const closeModal = useModalStore((state) => state.closeModal)
+  const { updateReading } = useMeterStore()
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
       await confirmMeasure(data)
       // logica para salvar as informações usando zustand/redux
+      updateReading(data.measure_uuid, data.confirmed_value)
+      closeModal()
     } catch (error) {
       console.error(error)
     }
